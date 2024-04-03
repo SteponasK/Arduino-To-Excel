@@ -1,7 +1,6 @@
 import serial
 from serial.tools import list_ports
 
-
 ports = list_ports.comports()
 print("PORTS: ", end="")
 for port in ports:
@@ -13,3 +12,5 @@ if not ports:
     exit()
 
 port_name = ports[0].device
+
+arduino = serial.Serial(port_name, 9600, 1)
