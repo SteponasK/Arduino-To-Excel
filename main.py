@@ -14,3 +14,10 @@ if not ports:
 port_name = ports[0].device
 
 arduino = serial.Serial(port_name, 9600, 1)
+
+first_line = arduino.readline().decode().strip()
+
+newLines = []
+while True:
+    newLines.append(arduino.readline().decode().strip())
+    
