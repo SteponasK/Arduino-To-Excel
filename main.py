@@ -15,12 +15,8 @@ if not ports:
 port_name = ports[0].device
 
 arduino = serial.Serial(port=port_name, baudrate=9600, timeout=1)
-first_line = None
-while True: 
-    first_line = arduino.readline().decode().strip()
-    if(first_line == "time,speed"):
-        break
 
+first_line = "time,speed"
 csv_file_name = 'kiausiniu_info.csv'
 with open(csv_file_name, 'w', newline='') as csv_file:
     writer = csv.writer(csv_file)
