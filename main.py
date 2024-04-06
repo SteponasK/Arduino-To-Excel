@@ -72,7 +72,7 @@ class PortManager:
         return [port.device for port in comports()]
 
 class MainWindow(QWidget):
-    def __init__(self, ports):
+    def __init__(self, PortManager):
         super().__init__()
         # set up main Window UI
         self.setWindowTitle("Egg Data To CSV")
@@ -92,7 +92,7 @@ class MainWindow(QWidget):
 
         # Drop-down menu for ports
         self.combo_box = QComboBox(self)
-        self.combo_box.addItems(ports)
+        self.combo_box.addItems(PortManager.get_ports())
         self.combo_box.move(50, 80)
 
         # Button to Start/Stop proccessing data
@@ -129,8 +129,7 @@ class MainWindow(QWidget):
 
 if __name__ == '__main__':
     app = QApplication([])
-    ports = [port.device for port in comports()]
-    window = MainWindow(ports)
+    window = MainWindow(PortManager)
     window.show()
     sys.exit(app.exec_())
 
