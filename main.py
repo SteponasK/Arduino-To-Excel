@@ -107,6 +107,7 @@ class MainWindow(QWidget):
         self.serial_manager = None
 
     def toggle_collection(self):
+        # Toggle start/stop (data collection)
         if not self.serial_manager:
             port_name = self.combo_box.currentText()
             self.label.setText(f"Selected Port: {port_name}")
@@ -121,12 +122,14 @@ class MainWindow(QWidget):
             self.start_button.setText("Start")
 
     def on_data_received(self, data):
+        # Proccess & display received data 
         time, speed = map(float, data.split(','))
         CSVManager.append_data(time, speed)
         message = f"Row: {time}, {speed} was saved"
         self.message_label.setText(message)
 
     def closeEvent(self, event):
+        # Close main window
         if self.serial_manager:
             self.serial_manager.stop_reading()
         event.accept()
