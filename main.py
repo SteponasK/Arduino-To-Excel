@@ -66,6 +66,11 @@ class CSVManager:
             writer = csv.writer(csv_file)
             writer.writerow([time, speed])
 
+class PortManager:
+    @staticmethod
+    def get_ports():
+        return [port.device for port in comports()]
+
 class MainWindow(QWidget):
     def __init__(self, ports):
         super().__init__()
