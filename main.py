@@ -82,14 +82,11 @@ class MainWindow(QWidget):
     def __init__(self, PortManager):
         super().__init__()
 
-        self.setupWindow(self)
-        self.setupLabels(self)
-        
+        self.setupWindow()
+        self.setupLabels()
+        self.setupComboBox()
 
-        # Drop-down menu for ports
-        self.combo_box = QComboBox(self)
-        self.combo_box.addItems(PortManager.get_ports())
-        self.combo_box.move(50, 80)
+      
 
         # Button to Start/Stop proccessing data
         self.start_button = QPushButton("Start", self)
@@ -115,6 +112,12 @@ class MainWindow(QWidget):
         self.message_label.setGeometry(50, 110, 220, 30)
         self.message_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.message_label.setWordWrap(True)
+
+    def setupComboBox(self):
+        # Drop-down menu for ports
+        self.combo_box = QComboBox(self)
+        self.combo_box.addItems(PortManager.get_ports())
+        self.combo_box.move(50, 80)
 
     def toggle_collection(self):
         # Toggle start/stop (data collection)
