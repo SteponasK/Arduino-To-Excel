@@ -69,23 +69,28 @@ class CSVManager:
 class MainWindow(QWidget):
     def __init__(self, ports):
         super().__init__()
+        # set up main Window UI
         self.setWindowTitle("Egg Data To CSV")
         self.setGeometry(50, 50, 320, 200)
 
+        # Label for selected port info
         self.label = QLabel(self)
         self.label.setGeometry(50, 50, 220, 30)
         self.label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.label.setWordWrap(True)
 
+        # Label for status message (if line was saved)
         self.message_label = QLabel(self)
         self.message_label.setGeometry(50, 110, 220, 30)
         self.message_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.message_label.setWordWrap(True)
 
+        # Drop-down menu for ports
         self.combo_box = QComboBox(self)
         self.combo_box.addItems(ports)
         self.combo_box.move(50, 80)
 
+        # Button to Start/Stop proccessing data
         self.start_button = QPushButton("Start", self)
         self.start_button.move(200, 80)
         self.start_button.clicked.connect(self.toggle_collection)
