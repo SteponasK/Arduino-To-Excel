@@ -10,16 +10,20 @@ class SerialManager(QObject):
 
     def __init__(self, port_name):
         super().__init__()
+        # Port name to be used.
         self.port_name = port_name
+        # Thread for reading data from the port
         self.serial_thread = None
 
     def start_reading(self):
+        # Start reading data from the port
         if not self.serial_thread:
             self.serial_thread = SerialThread(self.port_name)
             self.serial_thread.data_received.connect(self.data_received)
             self.serial_thread.start()
 
     def stop_reading(self):
+        # Stop reading data from the port
         if self.serial_thread:
             self.serial_thread.stop()
             self.serial_thread = None
