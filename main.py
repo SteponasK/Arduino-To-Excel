@@ -81,9 +81,8 @@ class PortManager:
 class MainWindow(QWidget):
     def __init__(self, PortManager):
         super().__init__()
-        # set up main Window UI
-        self.setWindowTitle("Egg Data To CSV")
-        self.setGeometry(50, 50, 320, 200)
+
+        self.setupWindow(self)
 
         # Label for selected port info
         self.label = QLabel(self)
@@ -108,6 +107,11 @@ class MainWindow(QWidget):
         self.start_button.clicked.connect(self.toggle_collection)
 
         self.serial_manager = None
+
+    def setupWindow(self):
+        # set up main Window UI
+        self.setWindowTitle("Egg Data To CSV")
+        self.setGeometry(50, 50, 320, 200)
 
     def toggle_collection(self):
         # Toggle start/stop (data collection)
@@ -143,6 +147,5 @@ if __name__ == '__main__':
     # Create & show window
     window = MainWindow(PortManager)
     window.show()
-    
     sys.exit(app.exec_())
 
