@@ -3,7 +3,26 @@ from serial.tools.list_ports import comports
 import csv
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QComboBox
-from PyQt5.QtCore import pyqtSlot, Qt, QThread, QObject, pyqtSignal
+from PyQt5.QtCore import Qt, QObject, pyqtSignal, QThread
+
+class SerialManager(QObject):
+    data_received = pyqtSignal(str)
+
+    def __init__(self, port_name):
+        super().__init__()
+        self.port_name = port_name
+        self.serial_thread = None
+
+    def start_reading(self):
+        if not self.serial_thread:
+            self.serial_thread = SerialThread(self.port_name)
+            self.serial_thread.data_received.connect(self.data_received)
+            self.serial_thread.start()
+
+    def stop_reading(self):
+        if self.serial_thread:
+            self.serial_thread.stop()
+            self.serial_thread = None
 
 class SerialThread(QThread):
     data_received = pyqtSignal(str)
@@ -22,11 +41,30 @@ class SerialThread(QThread):
                 while self.paused:
                     self.sleep(1)
 
+    def stop(self):
+        self.running = False
+        self.wait()
+
     def pause(self):
         self.paused = True
 
     def resume(self):
         self.paused = False
+
+class CSVManager:
+    @staticmethod
+    def write_header():
+        csv_file_name = 'kiausiniu_info.csv'
+        with open(csv_file_name, 'w', newline='') as csv_file:
+            writer = csv.writer(csv_file)
+            writer.writerow(["time", "speed"])
+
+    @staticmethod
+    def append_data(time, speed):
+        csv_file_name = 'kiausiniu_info.csv'
+        with open(csv_file_name, 'a', newline='') as csv_file:
+            writer = csv.writer(csv_file)
+            writer.writerow([time, speed])
 
 class MainWindow(QWidget):
     def __init__(self, ports):
@@ -52,42 +90,31 @@ class MainWindow(QWidget):
         self.start_button.move(200, 80)
         self.start_button.clicked.connect(self.toggle_collection)
 
-        self.serial_thread = None
+        self.serial_manager = None
 
     def toggle_collection(self):
-        if not self.serial_thread:
+        if not self.serial_manager:
             port_name = self.combo_box.currentText()
             self.label.setText(f"Selected Port: {port_name}")
-            self.serial_thread = SerialThread(port_name)
-            self.serial_thread.data_received.connect(self.on_data_received)
-            self.serial_thread.start()
+            self.serial_manager = SerialManager(port_name)
+            self.serial_manager.data_received.connect(self.on_data_received)
+            self.serial_manager.start_reading()
             self.start_button.setText("Stop")
-            self.write_csv_title()
+            CSVManager.write_header()
         else:
-            self.serial_thread.running = False
-            self.serial_thread.wait()
-            self.serial_thread = None
+            self.serial_manager.stop_reading()
+            self.serial_manager = None
             self.start_button.setText("Start")
 
-    def write_csv_title(self):
-        csv_file_name = 'kiausiniu_info.csv'
-        with open(csv_file_name, 'w', newline='') as csv_file:
-            writer = csv.writer(csv_file)
-            writer.writerow(["time", "speed"])
-
     def on_data_received(self, data):
-        time, speed = data.split(',')
-        csv_file_name = 'kiausiniu_info.csv'
-        with open(csv_file_name, 'a', newline='') as csv_file:
-            writer = csv.writer(csv_file)
-            writer.writerow([int(time), float(speed)])
-            message = f"Row: {int(time)}, {float(speed)} was saved"
-            self.message_label.setText(message)
+        time, speed = map(float, data.split(','))
+        CSVManager.append_data(time, speed)
+        message = f"Row: {time}, {speed} was saved"
+        self.message_label.setText(message)
 
     def closeEvent(self, event):
-        if self.serial_thread:
-            self.serial_thread.running = False
-            self.serial_thread.wait()
+        if self.serial_manager:
+            self.serial_manager.stop_reading()
         event.accept()
 
 if __name__ == '__main__':
