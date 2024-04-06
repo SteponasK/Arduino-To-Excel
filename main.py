@@ -2,7 +2,7 @@ import serial
 from serial.tools.list_ports import comports
 import csv
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QComboBox
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QComboBox, QMessageBox
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QThread
 
 class SerialManager(QObject):
@@ -50,7 +50,8 @@ class SerialThread(QThread):
                     while self.paused:
                         self.sleep(1)
         except serial.SerialException as e:
-             print(f"Error opening serial port: {e}")
+            error_message = f"Error opening serial port: {e} \nPort is probably already in use"
+            QMessageBox.critical(None, "Error", error_message)
 
     def stop(self):
         # Stop the thread
