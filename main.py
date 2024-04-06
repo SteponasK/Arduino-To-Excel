@@ -21,6 +21,9 @@ class SerialManager(QObject):
         if not self.serial_thread:
             self.serial_thread = SerialThread(self.port_name)
             self.serial_thread.data_received.connect(self.data_received)
+            # Error signal
+            self.serial_thread.emit_error_signal.connect(self.handle_error)
+            # Start thread
             self.serial_thread.start()
 
     def stop_reading(self):
@@ -28,6 +31,9 @@ class SerialManager(QObject):
         if self.serial_thread:
             self.serial_thread.stop()
             self.serial_thread = None
+
+    def handle_error(self, error_message):
+        QMessageBox.critical(None, "Error", error_message)
 
 class SerialThread(QThread):
     # Signal emitted when data received from the port (multithreading)
@@ -137,19 +143,23 @@ class MainWindow(QWidget):
         self.start_button.clicked.connect(self.toggle_collection)
 
     def toggle_collection(self):
-        # Toggle start/stop (data collection)
+    # Toggle start/stop (data collection)
         if not self.serial_manager:
             port_name = self.combo_box.currentText()
             self.label.setText(f"Selected Port: {port_name}")
 
             self.serial_manager = SerialManager(port_name)
-
-            # Multithreading
             self.serial_manager.data_received.connect(self.on_data_received)
-            self.serial_manager.serial_thread.emit_error_signal.connect(self.handle_error)
             
-            self.serial_manager.start_reading()
-
+            # Start reading data from the port
+            try:
+                self.serial_manager.start_reading()
+            except serial.SerialException as e:
+                error_message = f"Error opening serial port: {e} \nPort is probably already in use"
+                QMessageBox.critical(self, "Error", error_message)
+                # Reset serial manager on error
+                self.serial_manager = None  
+            
             self.start_button.setText("Stop")
             CSVManager.write_header()
         else:
