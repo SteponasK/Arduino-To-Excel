@@ -152,13 +152,7 @@ class MainWindow(QWidget):
             self.serial_manager.data_received.connect(self.on_data_received)
             
             # Start reading data from the port
-            try:
-                self.serial_manager.start_reading()
-            except serial.SerialException as e:
-                error_message = f"Error opening serial port: {e} \nPort is probably already in use"
-                QMessageBox.critical(self, "Error", error_message)
-                # Reset serial manager on error
-                self.serial_manager = None  
+            self.serial_manager.start_reading()
             
             self.start_button.setText("Stop")
             CSVManager.write_header()
