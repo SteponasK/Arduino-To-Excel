@@ -58,6 +58,7 @@ class SerialThread(QThread):
 class CSVManager:
     # Name of the .csv file
     csv_file_name = 'kiausiniu_info' + '.csv'
+
     @staticmethod
     def write_header():
         # Write title: "time, speed" to the csv file
@@ -137,8 +138,11 @@ class MainWindow(QWidget):
         event.accept()
 
 if __name__ == '__main__':
+    # Application instance & run event loop
     app = QApplication([])
+    # Create & show window
     window = MainWindow(PortManager)
     window.show()
+    
     sys.exit(app.exec_())
 
