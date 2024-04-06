@@ -2,7 +2,7 @@ import serial
 from serial.tools.list_ports import comports
 import csv
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QComboBox
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QComboBox, QMessageBox
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QThread
 
 class SerialManager(QObject):
@@ -21,6 +21,9 @@ class SerialManager(QObject):
         if not self.serial_thread:
             self.serial_thread = SerialThread(self.port_name)
             self.serial_thread.data_received.connect(self.data_received)
+            # Error signal
+            self.serial_thread.emit_error_signal.connect(self.handle_error)
+            # Start thread
             self.serial_thread.start()
 
     def stop_reading(self):
@@ -29,9 +32,14 @@ class SerialManager(QObject):
             self.serial_thread.stop()
             self.serial_thread = None
 
+    def handle_error(self, error_message):
+        QMessageBox.critical(None, "Error", error_message)
+
 class SerialThread(QThread):
     # Signal emitted when data received from the port (multithreading)
     data_received = pyqtSignal(str)
+    # Signal emitted when an error occurs (port connection)
+    emit_error_signal = pyqtSignal(str)
 
     def __init__(self, port_name):
         super().__init__()
@@ -40,14 +48,19 @@ class SerialThread(QThread):
 
     def run(self):
         # Thread's main loop for reading data from the port
-        with serial.Serial(port=self.port_name, baudrate=9600, timeout=1) as ser:
-            while getattr(self, "running", True):
-                line = ser.readline().decode().strip()
-                if line:
-                    # Emit the data (multithreading)
-                    self.data_received.emit(line)
-                while self.paused:
-                    self.sleep(1)
+        try:
+            with serial.Serial(port=self.port_name, baudrate=9600, timeout=1) as ser:
+                while getattr(self, "running", True):
+                    line = ser.readline().decode().strip()
+                    if line:
+                        # Emit the data (multithreading)
+                        self.data_received.emit(line)
+                    while self.paused:
+                        self.sleep(1)
+        except serial.SerialException as e:
+            # Create QMessageBox in the main GUI thread
+            error_message = f"{e} \nPort is probably already in use"
+            self.emit_error_signal.emit(error_message)
 
     def stop(self):
         # Stop the thread
@@ -96,6 +109,9 @@ class MainWindow(QWidget):
          
         self.serial_manager = None
 
+    def handle_error(self, error_message):
+        QMessageBox.critical(self, "Error", error_message)
+
     def setupWindow(self):
         # set up main Window UI
         self.setWindowTitle("Egg Data To CSV")
@@ -127,13 +143,17 @@ class MainWindow(QWidget):
         self.start_button.clicked.connect(self.toggle_collection)
 
     def toggle_collection(self):
-        # Toggle start/stop (data collection)
+    # Toggle start/stop (data collection)
         if not self.serial_manager:
             port_name = self.combo_box.currentText()
             self.label.setText(f"Selected Port: {port_name}")
+
             self.serial_manager = SerialManager(port_name)
             self.serial_manager.data_received.connect(self.on_data_received)
+            
+            # Start reading data from the port
             self.serial_manager.start_reading()
+            
             self.start_button.setText("Stop")
             CSVManager.write_header()
         else:
@@ -161,4 +181,3 @@ if __name__ == '__main__':
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
-
