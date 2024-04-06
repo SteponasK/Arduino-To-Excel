@@ -83,18 +83,8 @@ class MainWindow(QWidget):
         super().__init__()
 
         self.setupWindow(self)
-
-        # Label for selected port info
-        self.label = QLabel(self)
-        self.label.setGeometry(50, 50, 220, 30)
-        self.label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.label.setWordWrap(True)
-
-        # Label for status message (if line was saved)
-        self.message_label = QLabel(self)
-        self.message_label.setGeometry(50, 110, 220, 30)
-        self.message_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.message_label.setWordWrap(True)
+        self.setupLabels(self)
+        
 
         # Drop-down menu for ports
         self.combo_box = QComboBox(self)
@@ -112,6 +102,19 @@ class MainWindow(QWidget):
         # set up main Window UI
         self.setWindowTitle("Egg Data To CSV")
         self.setGeometry(50, 50, 320, 200)
+
+    def setupLabels(self):
+        # Label for selected port info
+        self.label = QLabel(self)
+        self.label.setGeometry(50, 50, 220, 30)
+        self.label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.label.setWordWrap(True)
+
+        # Label for status message (if line was saved)
+        self.message_label = QLabel(self)
+        self.message_label.setGeometry(50, 110, 220, 30)
+        self.message_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.message_label.setWordWrap(True)
 
     def toggle_collection(self):
         # Toggle start/stop (data collection)
