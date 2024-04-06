@@ -7,5 +7,8 @@ if __name__ == '__main__':
     app = QApplication([])
     window = MainWindow()
     window.show()
+    def on_exit():
+        CsvToExcelConverter.csv_to_excel(CSVManager.csv_file_name, CSVManager.csv_file_name)
+    app.aboutToQuit.connect(on_exit)
     sys.exit(app.exec_())
-    CsvToExcelConverter.csv_to_excel(CSVManager.csv_file_name, CSVManager.csv_file_name)
+
