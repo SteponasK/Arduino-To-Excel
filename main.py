@@ -85,13 +85,8 @@ class MainWindow(QWidget):
         self.setupWindow()
         self.setupLabels()
         self.setupComboBox()
-
-      
-
-        # Button to Start/Stop proccessing data
-        self.start_button = QPushButton("Start", self)
-        self.start_button.move(200, 80)
-        self.start_button.clicked.connect(self.toggle_collection)
+        self.setupStartButton()
+         
 
         self.serial_manager = None
 
@@ -118,6 +113,12 @@ class MainWindow(QWidget):
         self.combo_box = QComboBox(self)
         self.combo_box.addItems(PortManager.get_ports())
         self.combo_box.move(50, 80)
+
+    def setupStartButton(self):
+        # Button to Start/Stop proccessing data
+        self.start_button = QPushButton("Start", self)
+        self.start_button.move(200, 80)
+        self.start_button.clicked.connect(self.toggle_collection)
 
     def toggle_collection(self):
         # Toggle start/stop (data collection)
