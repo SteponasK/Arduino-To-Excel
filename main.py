@@ -40,14 +40,17 @@ class SerialThread(QThread):
 
     def run(self):
         # Thread's main loop for reading data from the port
-        with serial.Serial(port=self.port_name, baudrate=9600, timeout=1) as ser:
-            while getattr(self, "running", True):
-                line = ser.readline().decode().strip()
-                if line:
-                    # Emit the data (multithreading)
-                    self.data_received.emit(line)
-                while self.paused:
-                    self.sleep(1)
+        try:
+            with serial.Serial(port=self.port_name, baudrate=9600, timeout=1) as ser:
+                while getattr(self, "running", True):
+                    line = ser.readline().decode().strip()
+                    if line:
+                        # Emit the data (multithreading)
+                        self.data_received.emit(line)
+                    while self.paused:
+                        self.sleep(1)
+        except serial.SerialException as e:
+             print(f"Error opening serial port: {e}")
 
     def stop(self):
         # Stop the thread
@@ -161,4 +164,3 @@ if __name__ == '__main__':
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
-
