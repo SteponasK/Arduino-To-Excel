@@ -58,6 +58,7 @@ class SerialThread(QThread):
 class CSVManager:
     @staticmethod
     def write_header():
+        # Write title: "time, speed" to the csv file
         csv_file_name = 'kiausiniu_info.csv'
         with open(csv_file_name, 'w', newline='') as csv_file:
             writer = csv.writer(csv_file)
@@ -65,6 +66,7 @@ class CSVManager:
 
     @staticmethod
     def append_data(time, speed):
+        # Append further data to the csv file
         csv_file_name = 'kiausiniu_info.csv'
         with open(csv_file_name, 'a', newline='') as csv_file:
             writer = csv.writer(csv_file)
