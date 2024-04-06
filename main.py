@@ -37,8 +37,8 @@ class MainWindow(QWidget):
         self.label = QLabel(self)
         self.label.setGeometry(50, 50, 220, 30)
         self.label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.label.setText("Selected Port:")
         self.label.setWordWrap(True)
+
         self.combo_box = QComboBox(self)
         self.combo_box.addItems(ports)
         self.combo_box.move(50, 80)
@@ -57,11 +57,18 @@ class MainWindow(QWidget):
             self.serial_thread.data_received.connect(self.on_data_received)
             self.serial_thread.start()
             self.start_button.setText("Stop")
+            self.write_csv_title()
         else:
             self.serial_thread.running = False
             self.serial_thread.wait()
             self.serial_thread = None
             self.start_button.setText("Start")
+
+    def write_csv_title(self):
+        csv_file_name = 'kiausiniu_info.csv'
+        with open(csv_file_name, 'w', newline='') as csv_file:
+            writer = csv.writer(csv_file)
+            writer.writerow(["time", "speed"])
 
     def on_data_received(self, data):
         time, speed = data.split(',')
@@ -83,6 +90,5 @@ if __name__ == '__main__':
     window = MainWindow(ports)
     window.show()
     sys.exit(app.exec_())
-
 
 
