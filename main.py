@@ -118,7 +118,7 @@ class MainWindow(QWidget):
         event.accept()
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app = QApplication([])
     ports = [port.device for port in comports()]
     window = MainWindow(ports)
     window.show()
