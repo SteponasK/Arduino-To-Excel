@@ -14,6 +14,13 @@ class CsvToExcelConverter():
             # Writing values in the worksheet
             for row_index, row in enumerate(csv_reader, start=1):
                 for column_index, value in enumerate(row, start=1):
-                    ws.cell(row=row_index, column=column_index).value = value
+                    # Converting to numbers
+                    try:
+                        numeric_value = float(value)
+                    except ValueError:
+                        numeric_value = value
+
+                    ws.cell(row=row_index, column=column_index).value = numeric_value
 
         wb.save(excel_file + '.xlsx')
+
