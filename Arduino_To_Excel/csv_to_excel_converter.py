@@ -8,7 +8,7 @@ class CsvToExcelConverter():
         wb = Workbook()
         ws = wb.active
 
-        with open(csv_file, 'r') as file:
+        with open(csv_file + '.csv', 'r') as file:
             csv_reader = csv.reader(file)
             
             # Writing values in the worksheet
@@ -16,4 +16,4 @@ class CsvToExcelConverter():
                 for column_index, value in enumerate(row, start=1):
                     ws.cell(row=row_index, column=column_index).value = value
 
-        wb.save(excel_file)
+        wb.save(excel_file + '.xlsx')

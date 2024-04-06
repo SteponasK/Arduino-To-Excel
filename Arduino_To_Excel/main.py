@@ -8,4 +8,4 @@ if __name__ == '__main__':
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
-    # CsvToExcelConverter.csv_to_excel(CSVManager.csv_file_name,)
+    CsvToExcelConverter.csv_to_excel(CSVManager.csv_file_name, CSVManager.csv_file_name)
