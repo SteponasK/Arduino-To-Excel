@@ -32,6 +32,8 @@ class SerialManager(QObject):
 class SerialThread(QThread):
     # Signal emitted when data received from the port (multithreading)
     data_received = pyqtSignal(str)
+    # Signal emitted when an error occurs (port connection)
+    emit_error_signal = pyqtSignal(str)
 
     def __init__(self, port_name):
         super().__init__()
@@ -50,8 +52,9 @@ class SerialThread(QThread):
                     while self.paused:
                         self.sleep(1)
         except serial.SerialException as e:
+            # Create QMessageBox in the main GUI thread
             error_message = f"Error opening serial port: {e} \nPort is probably already in use"
-            QMessageBox.critical(None, "Error", error_message)
+            self.emit_error_signal.emit(error_message)
 
     def stop(self):
         # Stop the thread
@@ -100,6 +103,9 @@ class MainWindow(QWidget):
          
         self.serial_manager = None
 
+    def handle_error(self, error_message):
+        QMessageBox.critical(self, "Error", error_message)
+
     def setupWindow(self):
         # set up main Window UI
         self.setWindowTitle("Egg Data To CSV")
@@ -135,9 +141,15 @@ class MainWindow(QWidget):
         if not self.serial_manager:
             port_name = self.combo_box.currentText()
             self.label.setText(f"Selected Port: {port_name}")
+
             self.serial_manager = SerialManager(port_name)
+
+            # Multithreading
             self.serial_manager.data_received.connect(self.on_data_received)
+            self.serial_manager.serial_thread.emit_error_signal.connect(self.handle_error)
+            
             self.serial_manager.start_reading()
+
             self.start_button.setText("Stop")
             CSVManager.write_header()
         else:
