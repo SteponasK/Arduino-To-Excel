@@ -39,6 +39,11 @@ class MainWindow(QWidget):
         self.label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.label.setWordWrap(True)
 
+        self.message_label = QLabel(self)
+        self.message_label.setGeometry(50, 110, 220, 30)
+        self.message_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.message_label.setWordWrap(True)
+
         self.combo_box = QComboBox(self)
         self.combo_box.addItems(ports)
         self.combo_box.move(50, 80)
@@ -76,7 +81,8 @@ class MainWindow(QWidget):
         with open(csv_file_name, 'a', newline='') as csv_file:
             writer = csv.writer(csv_file)
             writer.writerow([int(time), float(speed)])
-            print(f"Row: {int(time)}, {float(speed)} was saved")
+            message = f"Row: {int(time)}, {float(speed)} was saved"
+            self.message_label.setText(message)
 
     def closeEvent(self, event):
         if self.serial_thread:
@@ -90,5 +96,4 @@ if __name__ == '__main__':
     window = MainWindow(ports)
     window.show()
     sys.exit(app.exec_())
-
 
