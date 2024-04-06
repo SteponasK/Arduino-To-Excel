@@ -11,13 +11,22 @@ class SerialThread(QThread):
     def __init__(self, port_name):
         super().__init__()
         self.port_name = port_name
+        self.paused = False
 
     def run(self):
         with serial.Serial(port=self.port_name, baudrate=9600, timeout=1) as ser:
-            while True:
+            while getattr(self, "running", True):
                 line = ser.readline().decode().strip()
                 if line:
                     self.data_received.emit(line)
+                while self.paused:
+                    self.sleep(1)
+
+    def pause(self):
+        self.paused = True
+
+    def resume(self):
+        self.paused = False
 
 class MainWindow(QWidget):
     def __init__(self, ports):
@@ -28,20 +37,31 @@ class MainWindow(QWidget):
         self.label = QLabel(self)
         self.label.setGeometry(50, 50, 220, 30)
         self.label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.label.setText("Selected Port:")
         self.label.setWordWrap(True)
-
         self.combo_box = QComboBox(self)
         self.combo_box.addItems(ports)
         self.combo_box.move(50, 80)
-        self.combo_box.activated[str].connect(self.on_port_selected)
+
+        self.start_button = QPushButton("Start", self)
+        self.start_button.move(200, 80)
+        self.start_button.clicked.connect(self.toggle_collection)
 
         self.serial_thread = None
 
-    def on_port_selected(self, port_name):
-        self.label.setText(f"Selected Port: {port_name}")
-        self.serial_thread = SerialThread(port_name)
-        self.serial_thread.data_received.connect(self.on_data_received)
-        self.serial_thread.start()
+    def toggle_collection(self):
+        if not self.serial_thread:
+            port_name = self.combo_box.currentText()
+            self.label.setText(f"Selected Port: {port_name}")
+            self.serial_thread = SerialThread(port_name)
+            self.serial_thread.data_received.connect(self.on_data_received)
+            self.serial_thread.start()
+            self.start_button.setText("Stop")
+        else:
+            self.serial_thread.running = False
+            self.serial_thread.wait()
+            self.serial_thread = None
+            self.start_button.setText("Start")
 
     def on_data_received(self, data):
         time, speed = data.split(',')
@@ -51,9 +71,18 @@ class MainWindow(QWidget):
             writer.writerow([int(time), float(speed)])
             print(f"Row: {int(time)}, {float(speed)} was saved")
 
+    def closeEvent(self, event):
+        if self.serial_thread:
+            self.serial_thread.running = False
+            self.serial_thread.wait()
+        event.accept()
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ports = [port.device for port in comports()]
     window = MainWindow(ports)
     window.show()
     sys.exit(app.exec_())
+
+
+
