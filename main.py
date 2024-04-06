@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QComboBo
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QThread
 
 class SerialManager(QObject):
+    # Signal emitted when data received from the port (multithreading)
     data_received = pyqtSignal(str)
 
     def __init__(self, port_name):
@@ -29,6 +30,7 @@ class SerialManager(QObject):
             self.serial_thread = None
 
 class SerialThread(QThread):
+    # Signal emitted when data received from the port (multithreading)
     data_received = pyqtSignal(str)
 
     def __init__(self, port_name):
@@ -37,22 +39,27 @@ class SerialThread(QThread):
         self.paused = False
 
     def run(self):
+        # Thread's main loop for reading data from the port
         with serial.Serial(port=self.port_name, baudrate=9600, timeout=1) as ser:
             while getattr(self, "running", True):
                 line = ser.readline().decode().strip()
                 if line:
+                    # Emit the data (multithreading)
                     self.data_received.emit(line)
                 while self.paused:
                     self.sleep(1)
 
     def stop(self):
+        # Stop the thread
         self.running = False
         self.wait()
 
     def pause(self):
+        # Pause the thread
         self.paused = True
 
     def resume(self):
+        # Resume the thread
         self.paused = False
 
 class CSVManager:
@@ -79,7 +86,7 @@ class PortManager:
         return [port.device for port in comports()]
 
 class MainWindow(QWidget):
-    def __init__(self, PortManager):
+    def __init__(self):
         super().__init__()
 
         self.setupWindow()
@@ -87,7 +94,6 @@ class MainWindow(QWidget):
         self.setupComboBox()
         self.setupStartButton()
          
-
         self.serial_manager = None
 
     def setupWindow(self):
@@ -152,7 +158,7 @@ if __name__ == '__main__':
     # Application instance & run event loop
     app = QApplication([])
     # Create & show window
-    window = MainWindow(PortManager)
+    window = MainWindow()
     window.show()
     sys.exit(app.exec_())
 
