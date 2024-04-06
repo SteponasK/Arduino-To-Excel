@@ -59,7 +59,7 @@ class SerialThread(QThread):
                         self.sleep(1)
         except serial.SerialException as e:
             # Create QMessageBox in the main GUI thread
-            error_message = f"Error opening serial port: {e} \nPort is probably already in use"
+            error_message = f"{e} \nPort is probably already in use"
             self.emit_error_signal.emit(error_message)
 
     def stop(self):
