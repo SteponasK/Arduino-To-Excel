@@ -34,5 +34,5 @@ jobs:
     - name: Create & upload artifact
       uses: actions/upload-artifact@v2
       with:
-        name: "main.exe"
+        name: "Application"
         path: dist/
