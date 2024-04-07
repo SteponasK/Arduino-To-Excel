@@ -28,4 +28,12 @@ jobs:
         pip install -r requirements.txt
 
     - name: Build executable
-      run: pyinstaller --onefile Arduino_To_Excel/main.py
+      run: |
+        pyinstaller --onefile Arduino_To_Excel/main.py
+        mv dist/main.exe main.exe
+
+    - name: Create & upload artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: "main"
+        path: main.exe
