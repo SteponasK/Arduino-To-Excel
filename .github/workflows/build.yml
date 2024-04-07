@@ -30,10 +30,10 @@ jobs:
     - name: Build executable
       run: |
         pyinstaller --onefile Arduino_To_Excel/main.py
-        mv dist/main.exe main.exe
+        mv $(find ./dist -type f -name '*.exe') main.exe
 
     - name: Create & upload artifact
       uses: actions/upload-artifact@v1
       with:
         name: "main"
-        path: ${{ steps.find_executable.outputs.path }}
+        path: main.exe
