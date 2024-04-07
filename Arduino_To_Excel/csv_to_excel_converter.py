@@ -4,7 +4,7 @@ import os
 class CsvToExcelConverter():
     @staticmethod
     def csv_to_excel(csv_file, excel_file):
-        if not os.path.exists(csv_file + 'csv'):
+        if not os.path.exists(csv_file + '.csv'):
             return
         
         # Creating workbook & selecting the worksheet
