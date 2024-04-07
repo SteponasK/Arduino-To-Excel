@@ -36,4 +36,4 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: "main"
-        path: main.exe
+        path: ${{ steps.find_executable.outputs.path }}
