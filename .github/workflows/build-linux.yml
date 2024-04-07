@@ -1,4 +1,4 @@
-name: Build executable
+name: Build executable linux
 
 on:
   push:
