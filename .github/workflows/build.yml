@@ -29,7 +29,7 @@ jobs:
 
     - name: Build executable
       run: |
-        pyinstaller --onefile Arduino_To_Excel/main.py
+        pyinstaller --onefile --name main.exe Arduino_To_Excel/main.py
 
     - name: Create & upload artifact
       uses: actions/upload-artifact@v2
