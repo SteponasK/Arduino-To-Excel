@@ -28,4 +28,4 @@ jobs:
         pip install -r requirements.txt
 
     - name: Build executable
-      run: pyinstaller --onefile main.py
+      run: pyinstaller --onefile Arduino_To_Excel/main.py
